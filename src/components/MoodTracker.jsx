@@ -94,7 +94,7 @@ const MoodTracker = ({ userEmail }) => {
     localStorage.setItem(`${storageKey}_today`, JSON.stringify(newEntry))
     
     const limitText = moodLimit === 0 ? 'безлимитно' : `${selectedMoods.length}/${moodLimit}`
-    alert(`Настроение сохранено! (${limitText}) 🌟`)
+    //alert(`Настроение сохранено! (${limitText}) 🌟`)
   }
 
   const getMoodNames = (moodEmojis) => {
