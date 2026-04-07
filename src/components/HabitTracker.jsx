@@ -1,167 +1,175 @@
 import React, { useState, useEffect } from 'react'
+import { supabase } from '../lib/supabaseClient'
 import './HabitTracker.css'
 
-const HabitTracker = () => {
+const HabitTracker = ({ userId }) => {
   const [habits, setHabits] = useState([])
-  const [newHabit, setNewHabit] = useState('')
-  const [reward, setReward] = useState('')
-  const [currentMonth, setCurrentMonth] = useState(new Date().getMonth())
-  const [currentYear, setCurrentYear] = useState(new Date().getFullYear())
+  const [newHabitName, setNewHabitName] = useState('')
+  const [selectedEmoji, setSelectedEmoji] = useState('🔄')
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
 
-  const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate()
-  const today = new Date().getDate()
-
-  useEffect(() => {
-    const saved = localStorage.getItem('habits')
-    if (saved) {
-      setHabits(JSON.parse(saved))
-    }
-  }, [])
+  const emojis = ['🔄', '💪', '📚', '🏃', '🧘', '🥗', '💧', '😴', '🎯', '✍️', '🎨', '🧹']
 
   useEffect(() => {
-    localStorage.setItem('habits', JSON.stringify(habits))
-  }, [habits])
-
-  const addHabit = () => {
-    if (!newHabit.trim()) {
-      alert('Введите название привычки')
-      return
+    if (userId) {
+      loadHabits()
     }
+  }, [userId])
 
-    const habit = {
-      id: Date.now(),
-      name: newHabit,
-      reward: reward || '🎁',
-      completions: {},
-      createdAt: new Date().toISOString()
-    }
+  const loadHabits = async () => {
+    try {
+      setLoading(true)
+      const { data, error } = await supabase
+        .from('habits')
+        .select('*')
+        .eq('user_id', userId)
+        .order('created_at', { ascending: true })
 
-    setHabits([...habits, habit])
-    setNewHabit('')
-    setReward('')
-  }
-
-  const toggleDay = (habitId, day) => {
-    setHabits(habits.map(habit => {
-      if (habit.id === habitId) {
-        const currentStatus = habit.completions[day] || false
-        return {
-          ...habit,
-          completions: {
-            ...habit.completions,
-            [day]: !currentStatus
-          }
-        }
-      }
-      return habit
-    }))
-  }
-
-  const deleteHabit = (habitId) => {
-    if (window.confirm('Удалить привычку?')) {
-      setHabits(habits.filter(h => h.id !== habitId))
+      if (error) throw error
+      setHabits(data || [])
+    } catch (err) {
+      console.error('Ошибка загрузки:', err)
+      setError('Не удалось загрузить привычки')
+    } finally {
+      setLoading(false)
     }
   }
 
-  const getCompletionCount = (habit) => {
-    return Object.values(habit.completions).filter(v => v === true).length
-  }
+  const addHabit = async () => {
+    if (!newHabitName.trim()) return
 
-  const changeMonth = (delta) => {
-    let newMonth = currentMonth + delta
-    let newYear = currentYear
-    
-    if (newMonth < 0) {
-      newMonth = 11
-      newYear--
-    } else if (newMonth > 11) {
-      newMonth = 0
-      newYear++
+    const newHabit = {
+      user_id: userId,
+      name: newHabitName.trim(),
+      emoji: selectedEmoji,
+      streak: 0,
+      completed_today: false
     }
-    
-    setCurrentMonth(newMonth)
-    setCurrentYear(newYear)
+
+    try {
+      const { data, error } = await supabase
+        .from('habits')
+        .insert([newHabit])
+        .select()
+        .single()
+
+      if (error) throw error
+      setHabits([...habits, data])
+      setNewHabitName('')
+      setSelectedEmoji('🔄')
+    } catch (err) {
+      console.error('Ошибка добавления:', err)
+      setError('Не удалось добавить привычку')
+    }
   }
 
-  const monthNames = ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь', 'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь']
+  const deleteHabit = async (id) => {
+    try {
+      const { error } = await supabase
+        .from('habits')
+        .delete()
+        .eq('id', id)
+
+      if (error) throw error
+      setHabits(habits.filter(habit => habit.id !== id))
+    } catch (err) {
+      console.error('Ошибка удаления:', err)
+      setError('Не удалось удалить привычку')
+    }
+  }
+
+  const toggleHabit = async (habit) => {
+    const today = new Date().toISOString().split('T')[0]
+    const newCompleted = !habit.completed_today
+    const newStreak = newCompleted ? (habit.streak + 1) : Math.max(0, habit.streak - 1)
+
+    try {
+      const { error } = await supabase
+        .from('habits')
+        .update({
+          completed_today: newCompleted,
+          streak: newStreak,
+          last_completed_date: newCompleted ? today : null
+        })
+        .eq('id', habit.id)
+
+      if (error) throw error
+      
+      setHabits(habits.map(h => 
+        h.id === habit.id 
+          ? { ...h, completed_today: newCompleted, streak: newStreak }
+          : h
+      ))
+    } catch (err) {
+      console.error('Ошибка обновления:', err)
+      setError('Не удалось обновить привычку')
+    }
+  }
+
+  if (loading) return <div className="loading">Загрузка привычек...</div>
 
   return (
     <div className="habit-tracker">
-      <div className="habit-header">
-        <h2>🔄 Трекер привычек</h2>
-        <p>Приобретайте полезные привычки, избавляйтесь от вредных и быстрее достигайте целей!</p>
+      <div className="tracker-header">
+        <h2>🔄 Привычки</h2>
+        <div className="add-habit">
+          <div className="emoji-selector">
+            {emojis.map(emoji => (
+              <button
+                key={emoji}
+                className={`emoji-btn ${selectedEmoji === emoji ? 'active' : ''}`}
+                onClick={() => setSelectedEmoji(emoji)}
+              >
+                {emoji}
+              </button>
+            ))}
+          </div>
+          <div className="habit-input">
+            <input
+              type="text"
+              placeholder="Новая привычка..."
+              value={newHabitName}
+              onChange={(e) => setNewHabitName(e.target.value)}
+              onKeyPress={(e) => e.key === 'Enter' && addHabit()}
+            />
+            <button onClick={addHabit}>+ Добавить</button>
+          </div>
+        </div>
       </div>
 
-      <div className="add-habit-form">
-        <div className="form-group">
-          <input
-            type="text"
-            placeholder="Привычка (например: Не пить кофе по утрам)"
-            value={newHabit}
-            onChange={(e) => setNewHabit(e.target.value)}
-          />
-        </div>
-        <div className="form-group">
-          <input
-            type="text"
-            placeholder="Вознаграждение (например: Новый гаджет)"
-            value={reward}
-            onChange={(e) => setReward(e.target.value)}
-          />
-        </div>
-        <button onClick={addHabit} className="add-habit-btn">➕ Добавить привычку</button>
-      </div>
-
-      <div className="month-navigation">
-        <button onClick={() => changeMonth(-1)}>← {monthNames[currentMonth === 0 ? 11 : currentMonth - 1]}</button>
-        <h3>{monthNames[currentMonth]} {currentYear}</h3>
-        <button onClick={() => changeMonth(1)}>{monthNames[currentMonth === 11 ? 0 : currentMonth + 1]} →</button>
-      </div>
+      {error && <div className="error-message">{error}</div>}
 
       <div className="habits-list">
-        {habits.map(habit => (
-          <div key={habit.id} className="habit-card">
-            <div className="habit-info">
-              <div className="habit-name">
-                <strong>{habit.name}</strong>
-                <button onClick={() => deleteHabit(habit.id)} className="delete-habit">🗑️</button>
-              </div>
-              <div className="habit-reward">
-                🎁 Вознаграждение: {habit.reward}
-              </div>
-              <div className="habit-stats">
-                📊 Выполнено: {getCompletionCount(habit)} / {daysInMonth} дней
-                <span className="progress-percent">
-                  ({Math.round((getCompletionCount(habit) / daysInMonth) * 100)}%)
-                </span>
-              </div>
-            </div>
-            
-            <div className="days-grid">
-              {[...Array(daysInMonth)].map((_, i) => {
-                const day = i + 1
-                const isCompleted = habit.completions[day] || false
-                const isToday = day === today && currentMonth === new Date().getMonth() && currentYear === new Date().getFullYear()
-                
-                return (
-                  <button
-                    key={day}
-                    className={`day-btn ${isCompleted ? 'completed' : ''} ${isToday ? 'today' : ''}`}
-                    onClick={() => toggleDay(habit.id, day)}
-                  >
-                    {day}
-                  </button>
-                )
-              })}
-            </div>
-          </div>
-        ))}
-        
-        {habits.length === 0 && (
+        {habits.length === 0 ? (
           <div className="empty-state">
-            <p>✨ Нет привычек. Добавьте первую привычку выше!</p>
-            <p className="hint">Например: «Медитация 10 минут», «Читать 30 страниц», «Не пить кофе»</p>
+            <p>✨ Нет привычек</p>
+            <p>Добавьте первую привычку, чтобы начать!</p>
           </div>
+        ) : (
+          habits.map(habit => (
+            <div key={habit.id} className="habit-card">
+              <div className="habit-info">
+                <span className="habit-emoji">{habit.emoji || '🔄'}</span>
+                <span className="habit-name">{habit.name}</span>
+                <span className="habit-streak">🔥 {habit.streak || 0} дней</span>
+              </div>
+              <div className="habit-actions">
+                <button 
+                  className={`check-btn ${habit.completed_today ? 'completed' : ''}`}
+                  onClick={() => toggleHabit(habit)}
+                >
+                  {habit.completed_today ? '✅' : '⬜'}
+                </button>
+                <button 
+                  className="delete-btn"
+                  onClick={() => deleteHabit(habit.id)}
+                >
+                  🗑️
+                </button>
+              </div>
+            </div>
+          ))
         )}
       </div>
     </div>

@@ -7,6 +7,7 @@ import TodoTracker from './components/TodoTracker'
 import { supabase } from './lib/supabaseClient'
 import AuthModal from './components/AuthModal'
 
+
 function App() {
   const [activeTab, setActiveTab] = useState('mood')
   const [user, setUser] = useState(null)
@@ -14,7 +15,6 @@ function App() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    // Проверяем текущую сессию при загрузке
     const checkSession = async () => {
       const { data: { session } } = await supabase.auth.getSession()
       setUser(session?.user ?? null)
@@ -23,13 +23,16 @@ function App() {
 
     checkSession()
 
-    // Слушаем изменения авторизации (вход/выход)
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user ?? null)
     })
 
     return () => subscription.unsubscribe()
   }, [])
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut()
+  }
 
   if (loading) {
     return (
@@ -45,15 +48,23 @@ function App() {
   if (!user) {
     return (
       <div className="App">
-        <div className="auth-container">
-          <div className="auth-card">
-            <h1>📊 Трекер привычек</h1>
-            <p>Отслеживай настроение, привычки и важные дела</p>
+        <header className="app-header">
+          <div className="header-main">
+            <h1>📊 Мой Трекер</h1>
+            <button className="login-icon-btn" onClick={() => setShowAuthModal(true)}>
+              👤
+            </button>
+          </div>
+        </header>
+        <main className="main-content">
+          <div className="auth-prompt">
+            <h2>Добро пожаловать!</h2>
+            <p>Войдите или зарегистрируйтесь, чтобы продолжить</p>
             <button className="auth-btn" onClick={() => setShowAuthModal(true)}>
               Войти / Зарегистрироваться
             </button>
           </div>
-        </div>
+        </main>
         <AuthModal isOpen={showAuthModal} onClose={() => setShowAuthModal(false)} />
       </div>
     )
@@ -64,22 +75,22 @@ function App() {
       <header className="app-header">
         <div className="header-main">
           <h1>📊 Мой Трекер</h1>
-          <UserMenu user={user} onLogout={() => supabase.auth.signOut()} />
+          <UserMenu user={user} onLogout={handleLogout} />
         </div>
         <div className="tabs">
-          <button 
+          <button
             className={activeTab === 'mood' ? 'tab active' : 'tab'}
             onClick={() => setActiveTab('mood')}
           >
             😊 Настроение
           </button>
-          <button 
+          <button
             className={activeTab === 'habits' ? 'tab active' : 'tab'}
             onClick={() => setActiveTab('habits')}
           >
             🔄 Привычки
           </button>
-          <button 
+          <button
             className={activeTab === 'todos' ? 'tab active' : 'tab'}
             onClick={() => setActiveTab('todos')}
           >

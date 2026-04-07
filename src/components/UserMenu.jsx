@@ -1,13 +1,11 @@
-import React, { useState } from 'react'
+import React from 'react'
 import './UserMenu.css'
 
-function UserMenu({ user, onLogout }) {
-  const [isOpen, setIsOpen] = useState(false)
-
+const UserMenu = ({ user, onLogout }) => {
   if (!user) return null
 
   const getUserInitial = () => {
-    return user.email ? user.email[0].toUpperCase() : 'U'
+    return user.email ? user.email[0].toUpperCase() : '👤'
   }
 
   const getUserName = () => {
@@ -16,20 +14,15 @@ function UserMenu({ user, onLogout }) {
 
   return (
     <div className="user-menu">
-      <div className="user-avatar" onClick={() => setIsOpen(!isOpen)}>
-        {getUserInitial()}
+      <div className="user-info">
+        <span className="user-avatar">
+          {getUserInitial()}
+        </span>
+        <span className="user-name">{getUserName()}</span>
+        <button onClick={onLogout} className="logout-icon" title="Выйти">
+          🚪
+        </button>
       </div>
-      {isOpen && (
-        <div className="user-dropdown">
-          <div className="user-info">
-            <strong>{getUserName()}</strong>
-            <small>{user.email}</small>
-          </div>
-          <button onClick={onLogout} className="logout-btn">
-            Выйти
-          </button>
-        </div>
-      )}
     </div>
   )
 }

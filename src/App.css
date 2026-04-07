@@ -193,3 +193,78 @@ body {
 .auth-btn:hover {
   background: #45a049;
 }
+/* Дополнительные стили для авторизации */
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+}
+
+.loader {
+  width: 50px;
+  height: 50px;
+  border: 3px solid #f3f3f3;
+  border-top: 3px solid #667eea;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.auth-prompt {
+  text-align: center;
+  padding: 60px 20px;
+}
+
+.auth-prompt h2 {
+  margin-bottom: 16px;
+  color: #333;
+}
+
+.auth-prompt p {
+  margin-bottom: 24px;
+  color: #666;
+}
+
+.auth-btn {
+  padding: 12px 32px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  border-radius: 30px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.auth-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+}
+
+.login-icon-btn {
+  background: none;
+  border: none;
+  font-size: 28px;
+  cursor: pointer;
+  padding: 5px 10px;
+  border-radius: 50%;
+  transition: all 0.3s;
+  background: #f0f0f0;
+  width: 45px;
+  height: 45px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.login-icon-btn:hover {
+  background: #e0e0e0;
+  transform: scale(1.05);
+}
