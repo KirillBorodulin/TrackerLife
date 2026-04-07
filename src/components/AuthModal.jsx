@@ -1,130 +1,108 @@
 import React, { useState } from 'react'
+import { supabase } from '../lib/supabaseClient'
 import './AuthModal.css'
 
-const AuthModal = ({ onClose, onLogin }) => {
-  const [isLogin, setIsLogin] = useState(true)
+function AuthModal({ isOpen, onClose }) {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-  const [username, setUsername] = useState('')
+  const [isLogin, setIsLogin] = useState(true)
+  const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
-  const [success, setSuccess] = useState('')
+  const [message, setMessage] = useState('')
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
+    setLoading(true)
     setError('')
-    setSuccess('')
+    setMessage('')
+
+    console.log('🔐 Попытка:', isLogin ? 'Входа' : 'Регистрации', 'для:', email)
 
     if (isLogin) {
-      // Вход
-      const users = JSON.parse(localStorage.getItem('users') || '{}')
-      if (users[email] && users[email].password === password) {
-        const userData = {
-          email,
-          username: users[email].username
-        }
-        localStorage.setItem('currentUser', JSON.stringify(userData))
-        onLogin(userData)
-        onClose()
+      const { data, error } = await supabase.auth.signInWithPassword({ 
+        email, 
+        password 
+      })
+      
+      if (error) {
+        console.error('❌ Ошибка входа:', error.message)
+        setError(error.message)
       } else {
-        setError('Неверный email или пароль')
+        console.log('✅ Вход успешен:', data.user.email)
+        onClose()
       }
     } else {
-      // Регистрация
-      const users = JSON.parse(localStorage.getItem('users') || '{}')
-      if (users[email]) {
-        setError('Пользователь с таким email уже существует')
-        return
-      }
-      if (!username.trim()) {
-        setError('Введите имя пользователя')
-        return
-      }
-      users[email] = { password, username }
-      localStorage.setItem('users', JSON.stringify(users))
+      const { data, error } = await supabase.auth.signUp({ 
+        email, 
+        password 
+      })
       
-      const userData = { email, username }
-      localStorage.setItem('currentUser', JSON.stringify(userData))
-      setSuccess('Регистрация успешна!')
-      setTimeout(() => {
-        onLogin(userData)
-        onClose()
-      }, 1000)
+      if (error) {
+        console.error('❌ Ошибка регистрации:', error.message)
+        setError(error.message)
+      } else {
+        console.log('✅ Регистрация успешна:', data.user?.email)
+        setMessage('Регистрация успешна! Теперь войдите в аккаунт.')
+        // Автоматически переключаем на форму входа через 2 секунды
+        setTimeout(() => {
+          setIsLogin(true)
+          setMessage('')
+          setEmail('')
+          setPassword('')
+        }, 2000)
+      }
     }
+    setLoading(false)
   }
 
+  if (!isOpen) return null
+
   return (
-    <div className="auth-modal-overlay" onClick={onClose}>
-      <div className="auth-modal" onClick={(e) => e.stopPropagation()}>
-        <button className="close-modal" onClick={onClose}>✕</button>
+    <div className="modal-overlay" onClick={onClose}>
+      <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+        <button className="modal-close" onClick={onClose}>×</button>
+        <h2>{isLogin ? 'Вход' : 'Регистрация'}</h2>
         
-        <div className="auth-modal-header">
-          <div className="auth-tabs">
-            <button 
-              className={`auth-tab ${isLogin ? 'active' : ''}`}
-              onClick={() => { setIsLogin(true); setError(''); setSuccess('') }}
-            >
-              Вход
-            </button>
-            <button 
-              className={`auth-tab ${!isLogin ? 'active' : ''}`}
-              onClick={() => { setIsLogin(false); setError(''); setSuccess('') }}
-            >
-              Регистрация
-            </button>
-          </div>
-        </div>
-
+        {message && <div className="success-message">{message}</div>}
+        {error && <div className="error-message">{error}</div>}
+        
         <form onSubmit={handleSubmit}>
-          {!isLogin && (
-            <div className="form-group">
-              <label>👤 Имя пользователя</label>
-              <input
-                type="text"
-                placeholder="Как вас называть?"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-                required
-              />
-            </div>
-          )}
-
-          <div className="form-group">
-            <label>📧 Email</label>
-            <input
-              type="email"
-              placeholder="your@email.com"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-            />
-          </div>
-
-          <div className="form-group">
-            <label>🔒 Пароль</label>
-            <input
-              type="password"
-              placeholder="••••••••"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-            />
-          </div>
-
-          {error && <div className="auth-error">{error}</div>}
-          {success && <div className="auth-success">{success}</div>}
-
-          <button type="submit" className="auth-submit">
-            {isLogin ? 'Войти' : 'Зарегистрироваться'}
+          <input
+            type="email"
+            placeholder="Email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+            disabled={loading}
+          />
+          <input
+            type="password"
+            placeholder="Пароль (минимум 6 символов)"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+            minLength={6}
+            disabled={loading}
+          />
+          <button type="submit" disabled={loading} className="submit-btn">
+            {loading ? 'Загрузка...' : (isLogin ? 'Войти' : 'Зарегистрироваться')}
           </button>
         </form>
-
-        <div className="auth-footer">
-          {isLogin ? (
-            <p>Нет аккаунта? <button onClick={() => { setIsLogin(false); setError(''); setSuccess('') }}>Зарегистрируйтесь</button></p>
-          ) : (
-            <p>Уже есть аккаунт? <button onClick={() => { setIsLogin(true); setError(''); setSuccess('') }}>Войдите</button></p>
-          )}
-        </div>
+        
+        <button 
+          type="button" 
+          onClick={() => {
+            setIsLogin(!isLogin)
+            setError('')
+            setMessage('')
+            setEmail('')
+            setPassword('')
+          }} 
+          className="switch-btn"
+          disabled={loading}
+        >
+          {isLogin ? 'Нет аккаунта? Зарегистрироваться' : 'Уже есть аккаунт? Войти'}
+        </button>
       </div>
     </div>
   )
