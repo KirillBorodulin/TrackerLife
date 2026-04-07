@@ -276,39 +276,37 @@
   color: #666;
   padding: 5px 0;
 }
+  
+  @media (max-width: 768px) {
+  .mood-grid {
+    grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+    gap: 8px;
+  }
+  
+  .mood-card {
+    padding: 10px 5px;
+  }
+  
+  .mood-emoji {
+    font-size: 24px;
+  }
+  
+  .selection-info {
+    font-size: 14px;
+  }
+}
 
-@media (max-width: 768px) {
-  .todo-input-group {
-    flex-wrap: wrap;
+  @media (max-width: 480px) {
+  .mood-grid {
+    grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
+    gap: 6px;
   }
   
-  .todo-input-group input {
-    width: 100%;
-    order: 1;
+  .mood-emoji {
+    font-size: 20px;
   }
   
-  .todo-input-group select {
-    flex: 1;
-    order: 2;
-  }
-  
-  .add-todo-btn {
-    order: 3;
-  }
-  
-  .todo-filters {
-    justify-content: center;
-  }
-  
-  .week-grid {
-    gap: 4px;
-  }
-  
-  .week-day {
-    padding: 4px;
-  }
-  
-  .day-name {
+  .mood-name {
     font-size: 10px;
   }
 }

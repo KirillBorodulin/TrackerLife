@@ -1,16 +1,37 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import './App.css'
+import UserMenu from './components/UserMenu'
 import MoodTracker from './components/MoodTracker'
 import HabitTracker from './components/HabitTracker'
 import TodoTracker from './components/TodoTracker'
 
 function App() {
   const [activeTab, setActiveTab] = useState('mood')
+  const [user, setUser] = useState(null)
+
+  useEffect(() => {
+    const savedUser = localStorage.getItem('currentUser')
+    if (savedUser) {
+      setUser(JSON.parse(savedUser))
+    }
+  }, [])
+
+  const handleLogin = (userData) => {
+    setUser(userData)
+  }
+
+  const handleLogout = () => {
+    localStorage.removeItem('currentUser')
+    setUser(null)
+  }
 
   return (
     <div className="App">
       <header className="app-header">
-        <h1>📊 Мой Трекер</h1>
+        <div className="header-main">
+          <h1>📊 Мой Трекер</h1>
+          <UserMenu user={user} onLogin={handleLogin} onLogout={handleLogout} />
+        </div>
         <div className="tabs">
           <button 
             className={activeTab === 'mood' ? 'tab active' : 'tab'}
@@ -34,9 +55,9 @@ function App() {
       </header>
 
       <main className="main-content">
-        {activeTab === 'mood' && <MoodTracker />}
-        {activeTab === 'habits' && <HabitTracker />}
-        {activeTab === 'todos' && <TodoTracker />}
+        {activeTab === 'mood' && <MoodTracker userEmail={user?.email} />}
+        {activeTab === 'habits' && <HabitTracker userEmail={user?.email} />}
+        {activeTab === 'todos' && <TodoTracker userEmail={user?.email} />}
       </main>
     </div>
   )

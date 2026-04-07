@@ -149,6 +149,99 @@
   color: #999;
   padding: 20px;
 }
+/* Настройки лимита */
+.limit-settings {
+  margin: 15px 0;
+  padding: 10px;
+  background: #f8f9fa;
+  border-radius: 12px;
+}
+
+.limit-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.limit-info span {
+  font-size: 14px;
+  color: #666;
+  font-weight: 500;
+}
+
+.settings-btn {
+  padding: 6px 12px;
+  background: #e0e0e0;
+  border: none;
+  border-radius: 20px;
+  cursor: pointer;
+  font-size: 12px;
+  transition: all 0.3s;
+}
+
+.settings-btn:hover {
+  background: #d0d0d0;
+}
+
+.limit-options {
+  margin-top: 15px;
+  padding-top: 15px;
+  border-top: 1px solid #e0e0e0;
+}
+
+.limit-options p {
+  font-size: 13px;
+  margin-bottom: 10px;
+  color: #333;
+}
+
+.limit-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.limit-buttons button {
+  padding: 8px 16px;
+  background: white;
+  border: 2px solid #e0e0e0;
+  border-radius: 25px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.3s;
+}
+
+.limit-buttons button:hover {
+  border-color: #667eea;
+}
+
+.limit-buttons .limit-active {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border-color: transparent;
+}
+
+.limit-hint {
+  font-size: 11px !important;
+  color: #999 !important;
+  margin-top: 5px !important;
+}
+
+/* Мобильная версия */
+@media (max-width: 768px) {
+  .limit-info {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .limit-buttons button {
+    padding: 6px 12px;
+    font-size: 12px;
+  }
+}
 
 @keyframes fadeIn {
   from {
