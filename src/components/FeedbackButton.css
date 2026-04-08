@@ -1,0 +1,266 @@
+/* Кнопка в правом нижнем углу */
+.feedback-fab {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  font-size: 28px;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  transition: all 0.3s ease;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.feedback-fab:hover {
+  transform: scale(1.1);
+  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+}
+
+.feedback-fab.open {
+  background: #ef4444;
+  transform: rotate(90deg);
+}
+
+/* Модальное окно */
+.feedback-modal {
+  position: fixed;
+  bottom: 90px;
+  right: 24px;
+  width: 380px;
+  max-width: calc(100vw - 48px);
+  background: white;
+  border-radius: 20px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+  z-index: 1001;
+  animation: slideInRight 0.3s ease;
+  overflow: hidden;
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(100px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.feedback-header {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 20px;
+  color: white;
+}
+
+.feedback-header h3 {
+  margin: 0 0 4px 0;
+  font-size: 20px;
+}
+
+.feedback-header p {
+  margin: 0;
+  font-size: 13px;
+  opacity: 0.9;
+}
+
+.feedback-modal form {
+  padding: 20px;
+}
+
+/* Типы сообщений */
+.feedback-types {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.type-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px;
+  background: #f9fafb;
+  border: 2px solid #e5e7eb;
+  border-radius: 12px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.2s;
+}
+
+.type-btn:hover {
+  transform: translateY(-2px);
+}
+
+.type-btn.active {
+  background: white;
+  border-width: 2px;
+}
+
+/* Оценка звездами */
+.feedback-rating {
+  margin-bottom: 20px;
+}
+
+.feedback-rating label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 500;
+  color: #333;
+  font-size: 14px;
+}
+
+.stars {
+  display: flex;
+  gap: 8px;
+}
+
+.star {
+  background: none;
+  border: none;
+  font-size: 28px;
+  cursor: pointer;
+  color: #d1d5db;
+  transition: all 0.2s;
+}
+
+.star:hover {
+  transform: scale(1.1);
+}
+
+.star.active {
+  color: #fbbf24;
+}
+
+/* Текст сообщения */
+.feedback-message {
+  margin-bottom: 20px;
+  position: relative;
+}
+
+.feedback-message label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 500;
+  color: #333;
+  font-size: 14px;
+}
+
+.feedback-message textarea {
+  width: 100%;
+  padding: 12px;
+  border: 2px solid #e5e7eb;
+  border-radius: 12px;
+  font-size: 14px;
+  font-family: inherit;
+  resize: vertical;
+  transition: border-color 0.3s;
+  box-sizing: border-box;
+}
+
+.feedback-message textarea:focus {
+  outline: none;
+  border-color: #667eea;
+}
+
+.char-counter {
+  position: absolute;
+  bottom: 8px;
+  right: 12px;
+  font-size: 11px;
+  color: #9ca3af;
+}
+
+/* Кнопка отправки */
+.feedback-submit {
+  width: 100%;
+  padding: 12px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.feedback-submit:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+}
+
+.feedback-submit:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Статусы */
+.feedback-success {
+  margin-top: 12px;
+  padding: 10px;
+  background: #d1fae5;
+  color: #059669;
+  border-radius: 10px;
+  font-size: 13px;
+  text-align: center;
+}
+
+.feedback-error {
+  margin-top: 12px;
+  padding: 10px;
+  background: #fee2e2;
+  color: #dc2626;
+  border-radius: 10px;
+  font-size: 13px;
+  text-align: center;
+}
+
+.feedback-footer {
+  padding: 12px 20px 20px 20px;
+  text-align: center;
+  border-top: 1px solid #f0f0f0;
+}
+
+.feedback-footer p {
+  margin: 0;
+  font-size: 11px;
+  color: #9ca3af;
+}
+
+/* Адаптивность */
+@media (max-width: 640px) {
+  .feedback-modal {
+    width: calc(100vw - 32px);
+    right: 16px;
+    bottom: 80px;
+  }
+  
+  .feedback-fab {
+    bottom: 16px;
+    right: 16px;
+    width: 48px;
+    height: 48px;
+    font-size: 24px;
+  }
+  
+  .feedback-types {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+  }
+  
+  .type-btn {
+    padding: 8px;
+    font-size: 12px;
+  }
+}
