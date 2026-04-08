@@ -5,7 +5,7 @@ import MoodTracker from './components/MoodTracker'
 import HabitTracker from './components/HabitTracker'
 import TodoTracker from './components/TodoTracker'
 import FeedbackButton from './components/FeedbackButton'
-import AdminFeedback from './components/AdminFeedback' // ВАЖНО: импорт админки
+import AdminFeedback from './components/AdminFeedback'
 import { supabase } from './lib/supabaseClient'
 import AuthModal from './components/AuthModal'
 
