@@ -5,7 +5,7 @@ import MoodTracker from './components/MoodTracker'
 import HabitTracker from './components/HabitTracker'
 import TodoTracker from './components/TodoTracker'
 import FeedbackButton from './components/FeedbackButton'
-import AdminFeedback from './components/AdminFeedback' // Добавляем админку
+import AdminFeedback from './components/AdminFeedback' // ВАЖНО: импорт админки
 import { supabase } from './lib/supabaseClient'
 import AuthModal from './components/AuthModal'
 
@@ -72,12 +72,7 @@ function App() {
       <div className="App">
         <header className="app-header">
           <div className="header-main">
-            <h1 
-              onClick={handleLogoClick}
-              style={{ cursor: user?.email === 'kirill_borodulin_2005@mail.ru' ? 'pointer' : 'default' }}
-            >
-              📊 Мой Трекер
-            </h1>
+            <h1>📊 Мой Трекер</h1>
             <button className="login-icon-btn" onClick={() => setShowAuthModal(true)}>
               👤
             </button>
@@ -93,6 +88,7 @@ function App() {
           </div>
         </main>
         <AuthModal isOpen={showAuthModal} onClose={() => setShowAuthModal(false)} />
+        <FeedbackButton user={user} />
       </div>
     )
   }
@@ -103,7 +99,10 @@ function App() {
         <div className="header-main">
           <h1 
             onClick={handleLogoClick}
-            style={{ cursor: user?.email === 'kirill_borodulin_2005@mail.ru' ? 'pointer' : 'default' }}
+            style={{ 
+              cursor: user?.email === 'kirill_borodulin_2005@mail.ru' ? 'pointer' : 'default',
+              userSelect: 'none'
+            }}
             title={user?.email === 'kirill_borodulin_2005@mail.ru' ? '5 кликов для админ-панели' : ''}
           >
             📊 Мой Трекер
