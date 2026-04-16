@@ -114,7 +114,6 @@ const MoodTracker = ({ userEmail }) => {
       <div className="tracker-header">
         <h2>🎭 Каким стал этот день для меня?</h2>
         <p className="current-date">{currentDate}</p>
-        
         {/* Настройки лимита */}
         <div className="limit-settings">
           <div className="limit-info">

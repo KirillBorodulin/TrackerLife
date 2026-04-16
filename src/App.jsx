@@ -8,6 +8,7 @@ import FeedbackButton from './components/FeedbackButton'
 import AdminFeedback from './components/AdminFeedback'
 import { supabase } from './lib/supabaseClient'
 import AuthModal from './components/AuthModal'
+import WeatherWidget from './components/WeatherWidget'
 
 function App() {
   const [activeTab, setActiveTab] = useState('mood')
@@ -136,7 +137,7 @@ function App() {
         {activeTab === 'habits' && <HabitTracker userId={user.id} />}
         {activeTab === 'todos' && <TodoTracker userId={user.id} />}
       </main>
-
+      <WeatherWidget />
       <FeedbackButton user={user} />
 
       {/* Админ-панель для просмотра отзывов */}

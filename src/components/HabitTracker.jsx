@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { supabase } from '../lib/supabaseClient'
+import WeatherWidget from "./WeatherWidget";
 import './HabitTracker.css'
 
 const HabitTracker = ({ userId }) => {
@@ -243,7 +244,7 @@ const HabitTracker = ({ userId }) => {
         <h2>🔄 Трекер привычек</h2>
         <p>Приобретайте полезные привычки, избавляйтесь от вредных и быстрее достигайте целей!</p>
       </div>
-
+            
       <div className="add-habit-form">
         <div className="form-group">
           <input
