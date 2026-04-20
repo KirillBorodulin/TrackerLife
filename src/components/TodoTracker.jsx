@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react'
+import { sanitizeInput } from '../utils/security'
 import './TodoTracker.css'
 
 const TodoTracker = () => {
@@ -12,7 +13,13 @@ const TodoTracker = () => {
   useEffect(() => {
     const savedTodos = localStorage.getItem('todos')
     if (savedTodos) {
-      setTodos(JSON.parse(savedTodos))
+      const parsedTodos = JSON.parse(savedTodos)
+      // Санитизируем существующие дела при загрузке
+      const sanitizedTodos = parsedTodos.map(todo => ({
+        ...todo,
+        text: sanitizeInput(todo.text)
+      }))
+      setTodos(sanitizedTodos)
     }
   }, [])
 
@@ -21,11 +28,17 @@ const TodoTracker = () => {
   }, [todos])
 
   const addTodo = () => {
-    if (!newTodo.trim()) return
+    // Санитизируем ввод перед добавлением
+    const sanitizedText = sanitizeInput(newTodo)
+    
+    if (!sanitizedText) {
+      alert('Введите название дела (не более 200 символов, без HTML тегов)')
+      return
+    }
 
     const todo = {
       id: Date.now(),
-      text: newTodo,
+      text: sanitizedText,
       completed: false,
       category: newCategory,
       createdAt: new Date().toLocaleDateString('ru-RU')
@@ -44,6 +57,15 @@ const TodoTracker = () => {
   const deleteTodo = (id) => {
     if (window.confirm('Удалить дело?')) {
       setTodos(todos.filter(todo => todo.id !== id))
+    }
+  }
+
+  // Обработчик изменения поля ввода
+  const handleTodoChange = (e) => {
+    const rawValue = e.target.value
+    // Ограничиваем длину ввода
+    if (rawValue.length <= 200) {
+      setNewTodo(rawValue)
     }
   }
 
@@ -104,10 +126,11 @@ const TodoTracker = () => {
         <div className="todo-input-group">
           <input
             type="text"
-            placeholder="Добавить новое дело..."
+            placeholder="Добавить новое дело... (макс. 200 символов)"
             value={newTodo}
-            onChange={(e) => setNewTodo(e.target.value)}
+            onChange={handleTodoChange}
             onKeyPress={(e) => e.key === 'Enter' && addTodo()}
+            maxLength="200"
           />
           <select value={newCategory} onChange={(e) => setNewCategory(e.target.value)}>
             {categories.map(cat => (
@@ -116,6 +139,11 @@ const TodoTracker = () => {
           </select>
           <button onClick={addTodo} className="add-todo-btn">➕</button>
         </div>
+        {newTodo.length > 0 && (
+          <div className="todo-input-hint">
+            {newTodo.length}/200 символов
+          </div>
+        )}
       </div>
 
       <div className="todo-filters">

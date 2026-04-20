@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { supabase } from '../lib/supabaseClient'
 import WeatherWidget from "./WeatherWidget";
+import { sanitizeInput } from '../utils/security'
 import './HabitTracker.css'
 
 const HabitTracker = ({ userId }) => {
@@ -11,11 +12,10 @@ const HabitTracker = ({ userId }) => {
   const [currentYear, setCurrentYear] = useState(new Date().getFullYear())
   const [expandedHabits, setExpandedHabits] = useState({})
   const [loading, setLoading] = useState(true)
+  const [showExportModal, setShowExportModal] = useState(false)
 
-  // Отладка
-  console.log('HabitTracker received userId:', userId)
+  const MAX_HABITS = 20
 
-  // Загрузка привычек из Supabase
   useEffect(() => {
     const fetchHabits = async () => {
       if (!userId) {
@@ -34,12 +34,10 @@ const HabitTracker = ({ userId }) => {
         
         if (error) throw error
         
-        console.log('Fetched habits:', data)
-        
         const formattedHabits = data.map(habit => ({
           id: habit.id,
-          name: habit.name,
-          reward: habit.description || '🎁',
+          name: sanitizeInput(habit.name),
+          reward: sanitizeInput(habit.description) || '🎁',
           completions: habit.completions || {},
           createdAt: habit.created_at
         }))
@@ -56,8 +54,17 @@ const HabitTracker = ({ userId }) => {
   }, [userId])
 
   const addHabit = async () => {
-    if (!newHabit.trim()) {
-      alert('Введите название привычки')
+    // Проверка лимита
+    if (habits.length >= MAX_HABITS) {
+      alert(`Вы достигли лимита привычек (${MAX_HABITS}). Удалите ненужные привычки, чтобы добавить новые.`)
+      return
+    }
+
+    const sanitizedName = sanitizeInput(newHabit)
+    const sanitizedReward = sanitizeInput(reward)
+    
+    if (!sanitizedName) {
+      alert('Введите название привычки (не более 200 символов, без HTML тегов)')
       return
     }
     
@@ -68,8 +75,8 @@ const HabitTracker = ({ userId }) => {
 
     const newHabitObj = {
       id: Date.now(),
-      name: newHabit,
-      reward: reward || '🎁',
+      name: sanitizedName,
+      reward: sanitizedReward || '🎁',
       completions: {},
       createdAt: new Date().toISOString()
     }
@@ -82,8 +89,8 @@ const HabitTracker = ({ userId }) => {
         .from('habits')
         .insert({
           user_id: userId,
-          name: newHabit,
-          description: reward || '🎁',
+          name: sanitizedName,
+          description: sanitizedReward || '🎁',
           completions: {}
         })
         .select()
@@ -105,6 +112,64 @@ const HabitTracker = ({ userId }) => {
     setReward('')
   }
 
+  // Экспорт данных
+  const exportData = () => {
+    const exportData = {
+      habits: habits,
+      exportDate: new Date().toISOString(),
+      version: '1.0'
+    }
+    
+    const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `habits_backup_${new Date().toISOString().split('T')[0]}.json`
+    document.body.appendChild(a)
+    a.click()
+    document.body.removeChild(a)
+    URL.revokeObjectURL(url)
+    
+    alert('Данные успешно экспортированы!')
+    setShowExportModal(false)
+  }
+
+  // Импорт данных
+  const importData = (event) => {
+    const file = event.target.files[0]
+    if (!file) return
+    
+    const reader = new FileReader()
+    reader.onload = (e) => {
+      try {
+        const imported = JSON.parse(e.target.result)
+        
+        if (imported.habits && Array.isArray(imported.habits)) {
+          if (imported.habits.length > MAX_HABITS) {
+            alert(`Слишком много привычек! Максимум ${MAX_HABITS}. Импорт отменен.`)
+            return
+          }
+          
+          const sanitizedHabits = imported.habits.map(habit => ({
+            ...habit,
+            name: sanitizeInput(habit.name),
+            reward: sanitizeInput(habit.reward)
+          }))
+          
+          setHabits(sanitizedHabits)
+          localStorage.setItem('habits', JSON.stringify(sanitizedHabits))
+          alert(`Импортировано ${sanitizedHabits.length} привычек!`)
+        } else {
+          alert('Неверный формат файла')
+        }
+      } catch (err) {
+        alert('Ошибка при импорте: ' + err.message)
+      }
+    }
+    reader.readAsText(file)
+    event.target.value = ''
+  }
+
   const toggleDay = async (habitId, dateStr) => {
     setHabits(prevHabits => {
       const updatedHabits = prevHabits.map(habit => {
@@ -121,7 +186,6 @@ const HabitTracker = ({ userId }) => {
         return habit
       })
       
-      // Находим обновленную привычку и сохраняем в БД
       const updatedHabit = updatedHabits.find(h => h.id === habitId)
       if (updatedHabit && typeof habitId === 'string' && habitId.length > 20) {
         supabase
@@ -170,7 +234,7 @@ const HabitTracker = ({ userId }) => {
   }
 
   const getCompletionCount = (habit) => {
-    return Object.values(habit.completions).filter(v => v === true).length
+    return Object.values(habit.completions || {}).filter(v => v === true).length
   }
 
   const changeMonth = (delta) => {
@@ -241,8 +305,18 @@ const HabitTracker = ({ userId }) => {
   return (
     <div className="habit-tracker">
       <div className="habit-header">
-        <h2>🔄 Трекер привычек</h2>
+        <div className="habit-header-top">
+          <h2>🔄 Трекер привычек</h2>
+          <div className="habit-actions-buttons">
+            <button onClick={() => setShowExportModal(true)} className="export-btn" title="Экспорт/Импорт данных">
+              💾
+            </button>
+          </div>
+        </div>
         <p>Приобретайте полезные привычки, избавляйтесь от вредных и быстрее достигайте целей!</p>
+        <div className="habit-limit-info">
+          📊 Привычек: {habits.length} / {MAX_HABITS}
+        </div>
       </div>
             
       <div className="add-habit-form">
@@ -252,6 +326,7 @@ const HabitTracker = ({ userId }) => {
             placeholder="Привычка (например: Не пить кофе по утрам)"
             value={newHabit}
             onChange={(e) => setNewHabit(e.target.value)}
+            maxLength="200"
           />
         </div>
         <div className="form-group">
@@ -260,10 +335,42 @@ const HabitTracker = ({ userId }) => {
             placeholder="Вознаграждение (например: Новый гаджет)"
             value={reward}
             onChange={(e) => setReward(e.target.value)}
+            maxLength="100"
           />
         </div>
-        <button onClick={addHabit} className="add-habit-btn">➕ Добавить привычку</button>
+        <button onClick={addHabit} className="add-habit-btn" disabled={habits.length >= MAX_HABITS}>
+          {habits.length >= MAX_HABITS ? '🔒 Лимит привычек' : '➕ Добавить привычку'}
+        </button>
       </div>
+
+      {/* Модальное окно экспорта/импорта */}
+      {showExportModal && (
+        <div className="export-modal-overlay" onClick={() => setShowExportModal(false)}>
+          <div className="export-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="export-modal-header">
+              <h3>💾 Экспорт / Импорт данных</h3>
+              <button className="close-modal-btn" onClick={() => setShowExportModal(false)}>✕</button>
+            </div>
+            <div className="export-modal-body">
+              <button onClick={exportData} className="export-action-btn">
+                📤 Экспортировать привычки
+              </button>
+              <div className="import-section">
+                <label className="import-label">
+                  📥 Импортировать привычки
+                  <input
+                    type="file"
+                    accept=".json"
+                    onChange={importData}
+                    style={{ display: 'none' }}
+                  />
+                </label>
+                <p className="import-hint">Выберите JSON файл с резервной копией</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       <div className="month-navigation">
         <button onClick={() => changeMonth(-1)}>← {monthNames[currentMonth === 0 ? 11 : currentMonth - 1]}</button>

@@ -11,25 +11,22 @@ const WeatherWidget = () => {
   const [suggestions, setSuggestions] = useState([])
   const [showSuggestions, setShowSuggestions] = useState(false)
   const [lastCity, setLastCity] = useState('')
+  const [hasLoadedWeather, setHasLoadedWeather] = useState(false)
 
-  // Загружаем последний город при старте
+  // Загружаем последний город при старте (НО НЕ ЗАГРУЖАЕМ ПОГОДУ)
   useEffect(() => {
     const savedCity = localStorage.getItem('lastWeatherCity')
     if (savedCity) {
       try {
         const parsed = JSON.parse(savedCity)
         setLastCity(parsed.city)
-        // Восстанавливаем погоду для последнего города
-        if (parsed.lat && parsed.lon) {
-          fetchWeather(parsed.lat, parsed.lon, parsed.city)
-        }
       } catch (e) {
         console.error('Ошибка загрузки сохраненного города:', e)
       }
     }
   }, [])
 
-  // Поиск городов (используем API Open-Meteo Geocoding)
+  // Поиск городов
   const searchCities = async (query) => {
     if (query.length < 2) {
       setSuggestions([])
@@ -48,7 +45,7 @@ const WeatherWidget = () => {
           country: cityItem.country,
           latitude: cityItem.latitude,
           longitude: cityItem.longitude,
-          displayName: `${cityItem.name}, ${cityItem.country}` // 👈 ДОБАВЛЕНО
+          displayName: `${cityItem.name}, ${cityItem.country}`
         })))
       } else {
         setSuggestions([])
@@ -73,17 +70,16 @@ const WeatherWidget = () => {
       
       const data = await response.json()
       
-      // Сохраняем погоду с названием города (как строку)
       const weatherData = {
         temperature: Math.round(data.current_weather.temperature),
         windspeed: data.current_weather.windspeed,
         winddirection: data.current_weather.winddirection,
-        city: cityName // 👈 Убеждаемся, что это строка
+        city: cityName
       }
       
       setWeather(weatherData)
+      setHasLoadedWeather(true)
       
-      // Сохраняем последний город в localStorage
       localStorage.setItem('lastWeatherCity', JSON.stringify({ 
         city: cityName, 
         lat, 
@@ -91,12 +87,6 @@ const WeatherWidget = () => {
       }))
       
       setLastCity(cityName)
-      setShowWidget(true)
-      
-      // Автоматически скрываем через 10 секунд
-      setTimeout(() => {
-        if (showWidget) setShowWidget(false)
-      }, 10000)
       
     } catch (err) {
       setError('Не удалось загрузить погоду. Попробуйте позже.')
@@ -106,7 +96,6 @@ const WeatherWidget = () => {
     }
   }
 
-  // Обработчик выбора города из списка
   const selectCity = (cityItem) => {
     const displayName = `${cityItem.name}, ${cityItem.country}`
     setSearchCity(displayName)
@@ -116,13 +105,13 @@ const WeatherWidget = () => {
     fetchWeather(cityItem.latitude, cityItem.longitude, displayName)
   }
 
-  // Обработчик поиска
   const handleSearch = () => {
     if (city && typeof city === 'string' && city.length > 0) {
-      // Если уже выбран город из списка
       const selectedSuggestion = suggestions.find(s => `${s.name}, ${s.country}` === city)
       if (selectedSuggestion) {
         fetchWeather(selectedSuggestion.latitude, selectedSuggestion.longitude, city)
+      } else {
+        setError('Пожалуйста, выберите город из списка')
       }
     } else if (searchCity) {
       setError('Пожалуйста, выберите город из списка')
@@ -131,15 +120,26 @@ const WeatherWidget = () => {
     }
   }
 
-  // Получение направления ветра на русском
+  const openWidget = () => {
+    setShowWidget(true)
+    setSearchCity('')
+    setCity('')
+    setSuggestions([])
+    setError('')
+  }
+
+  const closeWidget = () => {
+    setShowWidget(false)
+  }
+
   const getWindDirection = (degrees) => {
+    if (degrees === undefined) return 'неизвестно'
     const directions = ['северный', 'северо-восточный', 'восточный', 'юго-восточный', 
                         'южный', 'юго-западный', 'западный', 'северо-западный']
     const index = Math.round(degrees / 45) % 8
     return directions[index]
   }
 
-  // Иконка погоды
   const getWeatherIcon = (temperature) => {
     if (temperature < -15) return '🥶'
     if (temperature < -5) return '❄️'
@@ -150,35 +150,30 @@ const WeatherWidget = () => {
     return '🔥'
   }
 
-  // Совет по погоде
   const getWeatherAdvice = (temperature, windspeed) => {
-    if (temperature < -10) return '🥶 Очень холодно! Одевайтесь максимально тепло'
-    if (temperature < 0) return '🧥 На улице мороз, не забудьте шапку и перчатки'
-    if (temperature < 10) return '🧣 Прохладно, лучше одеться теплее'
-    if (temperature > 30) return '🥵 Очень жарко! Пейте больше воды'
-    if (temperature > 25) return '☀️ Отличная погода для прогулки!'
-    if (windspeed > 30) return '💨 Сильный ветер, будьте осторожны'
-    return '🌡️ Комфортная погода'
+    if (temperature < -10) return 'Очень холодно! Одевайтесь максимально тепло'
+    if (temperature < 0) return 'На улице мороз, не забудьте шапку и перчатки'
+    if (temperature < 10) return 'Прохладно, лучше одеться теплее'
+    if (temperature > 30) return 'Очень жарко! Пейте больше воды'
+    if (temperature > 25) return 'Отличная погода для прогулки!'
+    if (windspeed > 30) return 'Сильный ветер, будьте осторожны'
+    return 'Комфортная погода для вас'
   }
 
   return (
     <div className="weather-widget-container">
-      {/* Кнопка открытия виджета */}
-      {!showWidget && (
-        <button 
-          className="weather-toggle-btn"
-          onClick={() => setShowWidget(true)}
-        >
-          🌤️ Погода {lastCity && `в ${lastCity}`}
-        </button>
-      )}
+      <button 
+        className="weather-toggle-btn"
+        onClick={openWidget}
+      >
+        🌤️ Погода {lastCity && `в ${lastCity}`}
+      </button>
 
-      {/* Виджет погоды */}
       {showWidget && (
         <div className="weather-modal">
           <div className="weather-modal-header">
-            <h3>🌡️ Погода в вашем городе</h3>
-            <button className="close-btn" onClick={() => setShowWidget(false)}>✕</button>
+            <h3>Погода в вашем городе</h3>
+            <button className="close-btn" onClick={closeWidget}>✕</button>
           </div>
 
           <div className="weather-search">
@@ -211,7 +206,7 @@ const WeatherWidget = () => {
               )}
             </div>
             <button onClick={handleSearch} disabled={loading}>
-              {loading ? '⏳' : '🔍'} Найти
+              {loading ? '⏳' : 'Найти'}
             </button>
           </div>
 
@@ -220,7 +215,7 @@ const WeatherWidget = () => {
           {weather && !loading && (
             <div className="weather-info">
               <div className="weather-location">
-                📍 {weather.city} {/* 👈 Теперь это строка, а не объект */}
+                {weather.city}
               </div>
               
               <div className="weather-main">
@@ -234,14 +229,13 @@ const WeatherWidget = () => {
 
               <div className="weather-details">
                 <div className="detail-item">
-                  <span className="detail-icon">💨</span>
-                  <span>Ветер: {weather.windspeed} км/ч</span>
+                  <span>💨 Ветер: {weather.windspeed} км/ч</span>
                   <span className="detail-small">({getWindDirection(weather.winddirection)})</span>
                 </div>
               </div>
 
               <div className="weather-advice">
-                💡 {getWeatherAdvice(weather.temperature, weather.windspeed)}
+                {getWeatherAdvice(weather.temperature, weather.windspeed)}
               </div>
 
               <div className="weather-note">
@@ -254,6 +248,13 @@ const WeatherWidget = () => {
             <div className="weather-loading">
               <div className="spinner"></div>
               <p>Загрузка погоды...</p>
+            </div>
+          )}
+
+          {!weather && !loading && !error && (
+            <div className="weather-empty">
+              <p>Введите название города и нажмите "Найти"</p>
+              <p className="weather-hint">Например: Москва, Санкт-Петербург, Лондон</p>
             </div>
           )}
         </div>

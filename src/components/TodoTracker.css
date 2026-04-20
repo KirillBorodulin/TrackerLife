@@ -276,37 +276,304 @@
   color: #666;
   padding: 5px 0;
 }
-  
-  @media (max-width: 768px) {
-  .mood-grid {
-    grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
-    gap: 8px;
-  }
-  
-  .mood-card {
-    padding: 10px 5px;
-  }
-  
-  .mood-emoji {
-    font-size: 24px;
-  }
-  
-  .selection-info {
-    font-size: 14px;
-  }
+.todo-input-hint {
+  text-align: right;
+  font-size: 11px;
+  color: #999;
+  margin-top: 5px;
 }
 
-  @media (max-width: 480px) {
-  .mood-grid {
-    grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
-    gap: 6px;
+.add-todo-section {
+  margin-bottom: 20px;
+}
+  
+  /* ========== ТЕЛЕФОННАЯ АДАПТАЦИЯ (ДОБАВЛЕНО) ========== */
+
+/* Для телефонов до 768px */
+@media (max-width: 768px) {
+  .todo-tracker {
+    padding: 0 5px;
   }
   
-  .mood-emoji {
+  .todo-header h2 {
     font-size: 20px;
   }
   
-  .mood-name {
+  .todo-header p {
+    font-size: 12px;
+  }
+  
+  .todo-stats {
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+  
+  .stat-card {
+    padding: 12px;
+  }
+  
+  .stat-number {
+    font-size: 22px;
+  }
+  
+  .stat-label {
+    font-size: 10px;
+  }
+  
+  .schedule-preview {
+    padding: 15px;
+    margin-bottom: 20px;
+  }
+  
+  .schedule-preview h3 {
+    font-size: 14px;
+    margin-bottom: 10px;
+  }
+  
+  .week-grid {
+    gap: 4px;
+  }
+  
+  .week-day {
+    padding: 6px 4px;
+  }
+  
+  .day-name {
+    font-size: 10px;
+  }
+  
+  .day-tasks {
+    font-size: 10px;
+    min-height: 30px;
+  }
+  
+  .task-placeholder {
+    font-size: 12px;
+  }
+  
+  .todo-input-group {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  
+  .todo-input-group input {
+    flex: 1;
+    min-width: 120px;
+    padding: 10px;
+    font-size: 13px;
+  }
+  
+  .todo-input-group select {
+    padding: 10px;
+    font-size: 13px;
+  }
+  
+  .add-todo-btn {
+    padding: 10px 16px;
+    font-size: 18px;
+  }
+  
+  .todo-filters {
+    gap: 6px;
+    margin-bottom: 20px;
+  }
+  
+  .todo-filters button {
+    padding: 6px 12px;
+    font-size: 11px;
+  }
+  
+  .todos-list {
+    gap: 10px;
+    max-height: 350px;
+  }
+  
+  .todo-item {
+    padding: 10px;
+    gap: 10px;
+  }
+  
+  .todo-checkbox {
+    width: 18px;
+    height: 18px;
+  }
+  
+  .todo-text {
+    font-size: 13px;
+  }
+  
+  .todo-meta {
+    font-size: 10px;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+  
+  .todo-category {
+    font-size: 10px;
+    padding: 2px 6px;
+  }
+  
+  .todo-date {
+    font-size: 10px;
+  }
+  
+  .delete-todo {
+    font-size: 18px;
+  }
+  
+  .empty-todos {
+    padding: 30px;
+  }
+  
+  .empty-todos p {
+    font-size: 13px;
+  }
+  
+  .productivity-tips {
+    padding: 15px;
+    margin-top: 15px;
+  }
+  
+  .productivity-tips h4 {
+    font-size: 14px;
+    margin-bottom: 10px;
+  }
+  
+  .productivity-tips ul {
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 6px;
+  }
+  
+  .productivity-tips li {
+    font-size: 11px;
+    padding: 3px 0;
+  }
+  
+  .todo-input-hint {
     font-size: 10px;
   }
 }
+
+/* Для очень маленьких телефонов до 480px */
+@media (max-width: 480px) {
+  .todo-header h2 {
+    font-size: 18px;
+  }
+  
+  .todo-header p {
+    font-size: 11px;
+  }
+  
+  .todo-stats {
+    gap: 8px;
+  }
+  
+  .stat-card {
+    padding: 10px;
+  }
+  
+  .stat-number {
+    font-size: 20px;
+  }
+  
+  .stat-label {
+    font-size: 9px;
+  }
+  
+  .schedule-preview {
+    padding: 12px;
+  }
+  
+  .schedule-preview h3 {
+    font-size: 13px;
+  }
+  
+  .week-day {
+    padding: 4px 2px;
+  }
+  
+  .day-name {
+    font-size: 9px;
+  }
+  
+  .day-tasks {
+    font-size: 9px;
+    min-height: 25px;
+  }
+  
+  .task-placeholder {
+    font-size: 10px;
+  }
+  
+  .todo-input-group input {
+    padding: 8px;
+    font-size: 12px;
+  }
+  
+  .todo-input-group select {
+    padding: 8px;
+    font-size: 12px;
+  }
+  
+  .add-todo-btn {
+    padding: 8px 14px;
+    font-size: 16px;
+  }
+  
+  .todo-filters button {
+    padding: 5px 10px;
+    font-size: 10px;
+  }
+  
+  .todos-list {
+    gap: 8px;
+  }
+  
+  .todo-item {
+    padding: 8px;
+    gap: 8px;
+  }
+  
+  .todo-text {
+    font-size: 12px;
+  }
+  
+  .todo-meta {
+    font-size: 9px;
+  }
+  
+  .delete-todo {
+    font-size: 16px;
+  }
+  
+  .empty-todos {
+    padding: 20px;
+  }
+  
+  .empty-todos p {
+    font-size: 12px;
+  }
+  
+  .productivity-tips {
+    padding: 12px;
+  }
+  
+  .productivity-tips h4 {
+    font-size: 13px;
+  }
+  
+  .productivity-tips ul {
+    grid-template-columns: 1fr;
+    gap: 4px;
+  }
+  
+  .productivity-tips li {
+    font-size: 10px;
+  }
+  
+  .todo-input-hint {
+    font-size: 9px;
+  }
+}
+
+/* ========== КОНЕЦ ТЕЛЕФОННОЙ АДАПТАЦИИ ========== */

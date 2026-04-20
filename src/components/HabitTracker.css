@@ -468,15 +468,383 @@
   color: #888;
   margin-top: 5px;
 }
+.habit-header-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.habit-actions-buttons {
+  display: flex;
+  gap: 10px;
+}
+
+.export-btn {
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  padding: 5px;
+  border-radius: 50%;
+  transition: all 0.3s;
+}
+
+.export-btn:hover {
+  background: #f0f0f0;
+  transform: scale(1.1);
+}
+
+.habit-limit-info {
+  font-size: 12px;
+  color: #666;
+  margin-top: 8px;
+  text-align: center;
+}
+
+.add-habit-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Модальное окно экспорта */
+.export-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+}
+
+.export-modal {
+  background: white;
+  border-radius: 20px;
+  width: 90%;
+  max-width: 400px;
+  overflow: hidden;
+  animation: slideUp 0.3s ease;
+}
+
+.export-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 20px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+}
+
+.export-modal-header h3 {
+  margin: 0;
+  font-size: 18px;
+}
+
+.close-modal-btn {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 20px;
+  cursor: pointer;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  transition: background 0.3s;
+}
+
+.close-modal-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.export-modal-body {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.export-action-btn {
+  padding: 12px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.export-action-btn:hover {
+  transform: translateY(-2px);
+}
+
+.import-section {
+  text-align: center;
+}
+
+.import-label {
+  display: inline-block;
+  padding: 12px 24px;
+  background: #f0f0f0;
+  border: 2px dashed #667eea;
+  border-radius: 12px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: all 0.3s;
+}
+
+.import-label:hover {
+  background: #e0e0e0;
+}
+
+.import-hint {
+  font-size: 11px;
+  color: #999;
+  margin-top: 8px;
+}
 
 @keyframes spin {
   to { transform: rotate(360deg); }
 }
 
-/* Адаптив для маленьких экранов */
+/* ========== ТЕЛЕФОННАЯ АДАПТАЦИЯ (ДОБАВЛЕНО) ========== */
+
+/* Для телефонов до 768px */
 @media (max-width: 768px) {
+  .habit-tracker {
+    padding: 0 5px;
+  }
+  
+  .habit-header h2 {
+    font-size: 20px;
+  }
+  
+  .habit-header p {
+    font-size: 12px;
+  }
+  
+  .add-habit-form {
+    padding: 15px;
+    margin-bottom: 20px;
+  }
+  
+  .form-group input {
+    padding: 10px;
+    font-size: 13px;
+  }
+  
+  .add-habit-btn {
+    padding: 10px;
+    font-size: 14px;
+  }
+  
+  .month-navigation {
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+  
+  .month-navigation button {
+    padding: 6px 12px;
+    font-size: 12px;
+  }
+  
+  .month-navigation h3 {
+    font-size: 16px;
+  }
+  
+  .habits-list {
+    gap: 15px;
+  }
+  
+  .habit-card {
+    padding: 15px;
+  }
+  
+  .habit-name {
+    font-size: 16px;
+  }
+  
+  .habit-reward {
+    font-size: 12px;
+  }
+  
+  .habit-stats {
+    font-size: 11px;
+  }
+  
+  .days-grid {
+    grid-template-columns: repeat(auto-fill, minmax(35px, 1fr));
+    gap: 5px;
+  }
+  
+  .day-btn {
+    font-size: 11px;
+    border-radius: 6px;
+  }
+  
+  .calendar-weekdays {
+    gap: 5px;
+  }
+  
+  .calendar-weekday {
+    font-size: 10px;
+  }
+  
+  .calendar-days {
+    gap: 5px;
+  }
+  
+  .calendar-day {
+    font-size: 11px;
+    border-radius: 6px;
+  }
+  
+  .habit-header-top {
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  .habit-actions-buttons {
+    justify-content: center;
+  }
+  
+  .export-modal {
+    width: 95%;
+    margin: 0 10px;
+  }
+  
+  .export-modal-header h3 {
+    font-size: 16px;
+  }
+  
+  .export-modal-body {
+    padding: 15px;
+  }
+  
+  .export-action-btn {
+    padding: 10px;
+    font-size: 14px;
+  }
+  
+  .import-label {
+    padding: 10px 20px;
+    font-size: 14px;
+  }
+}
+
+/* Для очень маленьких телефонов до 480px */
+/* Для очень маленьких телефонов до 480px */
+@media (max-width: 480px) {
+  .habit-header h2 {
+    font-size: 18px;
+  }
+  
+  .habit-header p {
+    font-size: 11px;
+  }
+  
+  .habit-limit-info {
+    font-size: 10px;
+  }
+  
+  .add-habit-form {
+    padding: 12px;
+  }
+  
+  .form-group input {
+    padding: 8px;
+    font-size: 12px;
+  }
+  
+  .add-habit-btn {
+    padding: 8px;
+    font-size: 13px;
+  }
+  
+  .month-navigation {
+    gap: 8px;
+    margin-bottom: 15px;
+  }
+  
+  .month-navigation button {
+    padding: 5px 10px;
+    font-size: 11px;
+  }
+  
+  .month-navigation h3 {
+    font-size: 14px;
+  }
+  
+  .habits-list {
+    gap: 12px;
+  }
+  
+  .habit-card {
+    padding: 12px;
+  }
+  
+  .habit-name {
+    font-size: 14px;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  
+  .habit-name strong {
+    font-size: 14px;
+    max-width: 180px;
+    word-break: break-word;
+  }
+  
+  .habit-actions {
+    gap: 6px;
+  }
+  
+  .expand-btn {
+    font-size: 14px;
+    padding: 4px 6px;
+  }
+  
+  .delete-habit {
+    font-size: 18px;
+    padding: 4px;
+  }
+  
+  .habit-reward {
+    font-size: 11px;
+  }
+  
+  .habit-stats {
+    font-size: 10px;
+  }
+  
+  .progress-percent {
+    font-size: 9px;
+  }
+  
+  .progress-bar {
+    height: 4px;
+    margin-top: 6px;
+  }
+  
+  .calendar-container {
+    margin-top: 12px;
+    padding-top: 8px;
+  }
+  
   .calendar-weekdays {
     gap: 4px;
+    margin-bottom: 6px;
+  }
+  
+  .calendar-weekday {
+    font-size: 9px;
+    padding: 3px;
   }
   
   .calendar-days {
@@ -484,44 +852,48 @@
   }
   
   .calendar-day {
-    font-size: 11px;
+    font-size: 10px;
+    border-radius: 5px;
   }
   
-  .calendar-weekday {
+  /* Модальное окно экспорта */
+  .export-modal {
+    width: 95%;
+    margin: 0 10px;
+  }
+  
+  .export-modal-header {
+    padding: 12px 16px;
+  }
+  
+  .export-modal-header h3 {
+    font-size: 15px;
+  }
+  
+  .close-modal-btn {
+    width: 28px;
+    height: 28px;
+    font-size: 18px;
+  }
+  
+  .export-modal-body {
+    padding: 12px;
+    gap: 10px;
+  }
+  
+  .export-action-btn {
+    padding: 8px;
+    font-size: 13px;
+  }
+  
+  .import-label {
+    padding: 8px 16px;
+    font-size: 13px;
+  }
+  
+  .import-hint {
     font-size: 10px;
   }
 }
 
-@media (max-width: 480px) {
-  .calendar-day {
-    font-size: 10px;
-  }
-  
-  .calendar-weekday {
-    font-size: 9px;
-  }
-  
-  .habit-actions {
-    gap: 4px;
-  }
-  
-  .expand-btn {
-    padding: 3px 6px;
-    font-size: 14px;
-  }
-}
-
-@media (max-width: 768px) {
-  .days-grid {
-    grid-template-columns: repeat(auto-fill, minmax(35px, 1fr));
-    gap: 4px;
-  }
-  
-  .day-btn {
-    font-size: 11px;
-  }
-  
-  .habit-name {
-    font-size: 16px;
-  }
-}
+/* ========== КОНЕЦ ТЕЛЕФОННОЙ АДАПТАЦИИ ========== */

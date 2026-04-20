@@ -351,7 +351,223 @@ form, .reset-password-form {
   color: #667eea;
 }
 
-/* Адаптивность для мобильных устройств */
+/* ========== ТЕЛЕФОННАЯ АДАПТАЦИЯ (ДОБАВЛЕНО) ========== */
+
+/* Для телефонов до 768px */
+@media (max-width: 768px) {
+  .auth-modal {
+    width: 92%;
+    max-width: 420px;
+    border-radius: 28px;
+  }
+  
+  .auth-modal-header {
+    padding: 28px 20px 16px 20px;
+  }
+  
+  .logo-icon {
+    font-size: 28px;
+  }
+  
+  .logo-text {
+    font-size: 20px;
+  }
+  
+  .logo {
+    margin-bottom: 24px;
+    gap: 8px;
+  }
+  
+  .auth-tabs {
+    gap: 8px;
+    padding: 4px;
+  }
+  
+  .auth-tab {
+    padding: 10px 12px;
+    font-size: 14px;
+  }
+  
+  .tab-icon {
+    font-size: 16px;
+  }
+  
+  form, .reset-password-form {
+    padding: 28px 20px;
+  }
+  
+  .form-group {
+    margin-bottom: 20px;
+  }
+  
+  .form-group label {
+    font-size: 13px;
+    margin-bottom: 6px;
+  }
+  
+  .input-icon {
+    left: 12px;
+    font-size: 16px;
+  }
+  
+  .input-wrapper input {
+    padding: 12px 12px 12px 40px;
+    font-size: 14px;
+    border-radius: 14px;
+  }
+  
+  .submit-button {
+    padding: 12px;
+    font-size: 15px;
+    border-radius: 14px;
+  }
+  
+  .error-message, .success-message {
+    padding: 10px 14px;
+    font-size: 13px;
+    margin-bottom: 16px;
+  }
+  
+  .auth-footer {
+    padding: 0 20px 28px 20px;
+  }
+  
+  .divider span {
+    font-size: 13px;
+    padding: 0 10px;
+  }
+  
+  .auth-footer p {
+    font-size: 13px;
+  }
+  
+  .auth-footer button {
+    font-size: 13px;
+  }
+  
+  .forgot-link {
+    font-size: 13px;
+    margin-top: 12px;
+  }
+  
+  .reset-password-form h3 {
+    font-size: 20px;
+    margin-bottom: 8px;
+  }
+  
+  .reset-password-form p {
+    font-size: 13px;
+    margin-bottom: 24px;
+  }
+  
+  .close-modal {
+    top: 16px;
+    right: 16px;
+    width: 32px;
+    height: 32px;
+  }
+}
+
+/* Для очень маленьких телефонов (iPhone SE и подобные) до 480px */
+@media (max-width: 480px) {
+  .auth-modal {
+    width: 95%;
+    border-radius: 24px;
+  }
+  
+  .auth-modal-header {
+    padding: 24px 16px 12px 16px;
+  }
+  
+  .logo-icon {
+    font-size: 24px;
+  }
+  
+  .logo-text {
+    font-size: 18px;
+  }
+  
+  .logo {
+    margin-bottom: 20px;
+    gap: 6px;
+  }
+  
+  .auth-tab {
+    padding: 8px 10px;
+    font-size: 13px;
+  }
+  
+  .tab-icon {
+    font-size: 14px;
+  }
+  
+  form, .reset-password-form {
+    padding: 24px 16px;
+  }
+  
+  .form-group {
+    margin-bottom: 16px;
+  }
+  
+  .form-group label {
+    font-size: 12px;
+  }
+  
+  .input-icon {
+    left: 10px;
+    font-size: 14px;
+  }
+  
+  .input-wrapper input {
+    padding: 10px 10px 10px 36px;
+    font-size: 13px;
+    border-radius: 12px;
+  }
+  
+  .submit-button {
+    padding: 10px;
+    font-size: 14px;
+    border-radius: 12px;
+  }
+  
+  .error-message, .success-message {
+    padding: 8px 12px;
+    font-size: 12px;
+    border-radius: 10px;
+  }
+  
+  .auth-footer {
+    padding: 0 16px 24px 16px;
+  }
+  
+  .divider span {
+    font-size: 12px;
+    padding: 0 8px;
+  }
+  
+  .auth-footer p {
+    font-size: 12px;
+  }
+  
+  .auth-footer button {
+    font-size: 12px;
+  }
+  
+  .reset-password-form h3 {
+    font-size: 18px;
+  }
+  
+  .close-modal {
+    top: 12px;
+    right: 12px;
+    width: 28px;
+    height: 28px;
+  }
+}
+
+/* ========== КОНЕЦ ТЕЛЕФОННОЙ АДАПТАЦИИ ========== */
+
+/* Адаптивность для мобильных устройств (оригинальный блок, оставил как был) */
 @media (max-width: 640px) {
   .auth-modal {
     border-radius: 24px;

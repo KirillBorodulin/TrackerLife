@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import { supabase } from '../lib/supabaseClient'
+import { hashPassword, verifyPassword, sanitizeInput, validateEmail, validatePassword } from '../utils/security'
 import './AuthModal.css'
 
 const AuthModal = ({ isOpen, onClose }) => {
@@ -17,16 +18,21 @@ const AuthModal = ({ isOpen, onClose }) => {
     setError('')
     setMessage('')
 
-    const cleanEmail = email.trim().toLowerCase()
-    const cleanPassword = password.trim()
+    const cleanEmail = sanitizeInput(email.trim().toLowerCase())
+    const cleanPassword = password // пароль не санитизируем, только хешируем
 
-    if (!cleanEmail.includes('@')) {
-      setError('Введите корректный email адрес')
+    const validateEmailStrict = (email) => {
+    const re = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/
+    return re.test(email)
+    }
+
+    if (!validateEmailStrict(cleanEmail)) {
+      setError('Введите корректный email адрес (пример: name@domain.com)')
       setLoading(false)
       return
     }
 
-    if (!isLogin && cleanPassword.length < 6) {
+    if (!isLogin && !validatePassword(cleanPassword)) {
       setError('Пароль должен быть не менее 6 символов')
       setLoading(false)
       return
@@ -34,6 +40,7 @@ const AuthModal = ({ isOpen, onClose }) => {
 
     try {
       if (isLogin) {
+        // ВХОД - проверяем через Supabase
         const { data, error } = await supabase.auth.signInWithPassword({ 
           email: cleanEmail, 
           password: cleanPassword
@@ -48,11 +55,23 @@ const AuthModal = ({ isOpen, onClose }) => {
             setError(error.message)
           }
         } else {
+          // Сохраняем пользователя с хешированным паролем в localStorage для оффлайн режима
+          const hashedForLocal = await hashPassword(cleanPassword)
+          const localUsers = JSON.parse(localStorage.getItem('users') || '{}')
+          if (!localUsers[cleanEmail]) {
+            localUsers[cleanEmail] = { 
+              password: hashedForLocal,
+              email: cleanEmail
+            }
+            localStorage.setItem('users', JSON.stringify(localUsers))
+          }
+          
           onClose()
           setEmail('')
           setPassword('')
         }
       } else {
+        // РЕГИСТРАЦИЯ
         const { data, error } = await supabase.auth.signUp({ 
           email: cleanEmail, 
           password: cleanPassword,
@@ -68,6 +87,16 @@ const AuthModal = ({ isOpen, onClose }) => {
             setError(error.message)
           }
         } else if (data.user) {
+          // Сохраняем хешированный пароль в localStorage
+          const hashedPassword = await hashPassword(cleanPassword)
+          const users = JSON.parse(localStorage.getItem('users') || '{}')
+          users[cleanEmail] = { 
+            password: hashedPassword,
+            email: cleanEmail,
+            createdAt: new Date().toISOString()
+          }
+          localStorage.setItem('users', JSON.stringify(users))
+          
           setMessage('Регистрация успешна! Теперь войдите в аккаунт.')
           setTimeout(() => {
             setIsLogin(true)
@@ -77,6 +106,7 @@ const AuthModal = ({ isOpen, onClose }) => {
         }
       }
     } catch (err) {
+      console.error('Auth error:', err)
       setError('Произошла ошибка. Попробуйте позже.')
     } finally {
       setLoading(false)
@@ -84,7 +114,9 @@ const AuthModal = ({ isOpen, onClose }) => {
   }
 
   const handleResetPassword = async () => {
-    if (!email) {
+    const cleanEmail = sanitizeInput(email.trim().toLowerCase())
+    
+    if (!cleanEmail) {
       setError('Введите email для сброса пароля')
       return
     }
@@ -93,7 +125,7 @@ const AuthModal = ({ isOpen, onClose }) => {
     setError('')
     setMessage('')
     
-    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+    const { error } = await supabase.auth.resetPasswordForEmail(cleanEmail, {
       redirectTo: window.location.origin,
     })
     

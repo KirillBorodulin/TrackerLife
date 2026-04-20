@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react'
+import { sanitizeInput } from '../utils/security'
 import './MoodTracker.css'
 
 const MoodTracker = ({ userEmail }) => {
@@ -6,7 +7,7 @@ const MoodTracker = ({ userEmail }) => {
   const [notes, setNotes] = useState('')
   const [moodHistory, setMoodHistory] = useState([])
   const [currentDate, setCurrentDate] = useState('')
-  const [moodLimit, setMoodLimit] = useState(3) // Лимит по умолчанию 3
+  const [moodLimit, setMoodLimit] = useState(3)
   const [showLimitSettings, setShowLimitSettings] = useState(false)
 
   const moods = [
@@ -29,32 +30,41 @@ const MoodTracker = ({ userEmail }) => {
   ]
 
   const toggleMood = (mood) => {
-    if (selectedMoods.includes(mood)) {
-      setSelectedMoods(selectedMoods.filter(m => m !== mood))
-    } else if (moodLimit === 0) {
-      // Без лимита - можно сколько угодно
-      setSelectedMoods([...selectedMoods, mood])
-    } else if (selectedMoods.length < moodLimit) {
-      setSelectedMoods([...selectedMoods, mood])
-    } else {
-      alert(`Вы можете выбрать не более ${moodLimit} настроений в день!${moodLimit === 0 ? '' : ' Измените лимит в настройках'}`)
-    }
+  // Проверяем, что mood есть в списке разрешенных
+  const isValidMood = moods.some(m => m.emoji === mood)
+  if (!isValidMood) return
+  
+  if (selectedMoods.includes(mood)) {
+    setSelectedMoods(selectedMoods.filter(m => m !== mood))
+  } else if (moodLimit === 0) {
+    setSelectedMoods([...selectedMoods, mood])
+  } else if (selectedMoods.length < moodLimit) {
+    setSelectedMoods([...selectedMoods, mood])
+  } else {
+    alert(`Вы можете выбрать не более ${moodLimit} настроений в день!${moodLimit === 0 ? '' : ' Измените лимит в настройках'}`)
   }
+}
 
   const changeLimit = (newLimit) => {
     setMoodLimit(newLimit)
     localStorage.setItem(`${userEmail}_moodLimit`, newLimit)
-    // Если текущих выбрано больше нового лимита - обрезаем
     if (newLimit > 0 && selectedMoods.length > newLimit) {
       setSelectedMoods(selectedMoods.slice(0, newLimit))
     }
+  }
+
+  // Обработчик изменения заметок с санитизацией
+  const handleNotesChange = (e) => {
+    const rawValue = e.target.value
+    // Санитизируем ввод, но сохраняем как есть для редактирования
+    // При сохранении уже будет санитизация
+    setNotes(rawValue)
   }
 
   useEffect(() => {
     const today = new Date().toLocaleDateString('ru-RU')
     setCurrentDate(today)
     
-    // Загружаем сохраненный лимит пользователя
     const savedLimit = localStorage.getItem(`${userEmail}_moodLimit`)
     if (savedLimit !== null) {
       setMoodLimit(parseInt(savedLimit))
@@ -63,13 +73,23 @@ const MoodTracker = ({ userEmail }) => {
     const storageKey = `moodHistory_${userEmail}`
     const saved = localStorage.getItem(storageKey)
     if (saved) {
-      setMoodHistory(JSON.parse(saved))
+      const parsedHistory = JSON.parse(saved)
+      // Санитизируем заметки при загрузке
+      const sanitizedHistory = parsedHistory.map(entry => ({
+        ...entry,
+        notes: sanitizeInput(entry.notes || '')
+      }))
+      setMoodHistory(sanitizedHistory)
     }
     
     const todayMood = JSON.parse(localStorage.getItem(`${storageKey}_today`))
     if (todayMood && todayMood.date === today) {
-      setSelectedMoods(todayMood.moods || [])
-      setNotes(todayMood.notes || '')
+      // Фильтруем только валидные настроения
+      const validMoods = todayMood.moods.filter(m => 
+        moods.some(mood => mood.emoji === m)
+      )
+      setSelectedMoods(validMoods)
+      setNotes(sanitizeInput(todayMood.notes || ''))
     }
   }, [userEmail])
 
@@ -79,12 +99,15 @@ const MoodTracker = ({ userEmail }) => {
       return
     }
 
+    // Санитизируем заметки перед сохранением
+    const sanitizedNotes = sanitizeInput(notes)
+    
     const today = new Date().toLocaleDateString('ru-RU')
     const storageKey = `moodHistory_${userEmail}`
     const newEntry = {
       date: today,
       moods: selectedMoods,
-      notes: notes,
+      notes: sanitizedNotes,
       timestamp: Date.now()
     }
 
@@ -94,7 +117,8 @@ const MoodTracker = ({ userEmail }) => {
     localStorage.setItem(`${storageKey}_today`, JSON.stringify(newEntry))
     
     const limitText = moodLimit === 0 ? 'безлимитно' : `${selectedMoods.length}/${moodLimit}`
-    //alert(`Настроение сохранено! (${limitText}) 🌟`)
+    // alert убран, но можно раскомментировать если нужно
+    // alert(`Настроение сохранено! (${limitText}) 🌟`)
   }
 
   const getMoodNames = (moodEmojis) => {
@@ -114,7 +138,7 @@ const MoodTracker = ({ userEmail }) => {
       <div className="tracker-header">
         <h2>🎭 Каким стал этот день для меня?</h2>
         <p className="current-date">{currentDate}</p>
-        {/* Настройки лимита */}
+        
         <div className="limit-settings">
           <div className="limit-info">
             <span>📊 Выбрано настроений: {getLimitText()}</span>
@@ -200,10 +224,14 @@ const MoodTracker = ({ userEmail }) => {
         <label>📝 Заметки, озарения</label>
         <textarea
           value={notes}
-          onChange={(e) => setNotes(e.target.value)}
+          onChange={handleNotesChange}
           placeholder="Запишите свои мысли, инсайты или важные моменты дня..."
           rows="4"
+          maxLength="500"
         />
+        <div className="notes-counter">
+          {notes.length}/500 символов
+        </div>
       </div>
 
       <button className="save-button" onClick={saveMood}>

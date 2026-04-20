@@ -229,6 +229,17 @@
   color: #999 !important;
   margin-top: 5px !important;
 }
+.notes-counter {
+  text-align: right;
+  font-size: 11px;
+  color: #999;
+  margin-top: 5px;
+}
+
+.notes-section textarea {
+  resize: vertical;
+  min-height: 100px;
+}
 
 /* Мобильная версия */
 @media (max-width: 768px) {
@@ -254,10 +265,26 @@
   }
 }
 
+/* ========== ТЕЛЕФОННАЯ АДАПТАЦИЯ (ДОБАВЛЕНО) ========== */
+
+/* Для телефонов до 768px */
 @media (max-width: 768px) {
+  .mood-tracker {
+    padding: 0 5px;
+  }
+  
+  .tracker-header h2 {
+    font-size: 18px;
+  }
+  
+  .current-date {
+    font-size: 14px;
+  }
+  
   .mood-grid {
-    grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(75px, 1fr));
     gap: 8px;
+    margin-bottom: 20px;
   }
   
   .mood-card {
@@ -268,8 +295,197 @@
     font-size: 24px;
   }
   
+  .mood-name {
+    font-size: 10px;
+  }
+  
+  .notes-section label {
+    font-size: 14px;
+    margin-bottom: 8px;
+  }
+  
+  .notes-section textarea {
+    padding: 10px;
+    font-size: 13px;
+    min-height: 80px;
+  }
+  
+  .notes-counter {
+    font-size: 10px;
+  }
+  
+  .save-button {
+    padding: 12px;
+    font-size: 14px;
+    margin-bottom: 20px;
+  }
+  
+  .history-section h3 {
+    font-size: 16px;
+    margin-bottom: 12px;
+  }
+  
+  .history-list {
+    max-height: 250px;
+    gap: 8px;
+  }
+  
   .history-item {
+    padding: 10px;
     flex-direction: column;
     align-items: flex-start;
+    gap: 6px;
+  }
+  
+  .history-date {
+    font-size: 12px;
+    min-width: auto;
+  }
+  
+  .history-mood {
+    font-size: 14px;
+    min-width: auto;
+  }
+  
+  .history-notes {
+    font-size: 11px;
+  }
+  
+  .no-data {
+    font-size: 13px;
+    padding: 30px;
+  }
+  
+  /* Настройки лимита */
+  .limit-settings {
+    margin: 10px 0;
+    padding: 8px;
+  }
+  
+  .limit-info {
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+  }
+  
+  .limit-info span {
+    font-size: 13px;
+  }
+  
+  .settings-btn {
+    padding: 5px 10px;
+    font-size: 11px;
+  }
+  
+  .limit-options {
+    margin-top: 10px;
+    padding-top: 10px;
+  }
+  
+  .limit-options p {
+    font-size: 12px;
+  }
+  
+  .limit-buttons {
+    gap: 8px;
+    justify-content: center;
+  }
+  
+  .limit-buttons button {
+    padding: 6px 12px;
+    font-size: 12px;
+  }
+  
+  .limit-hint {
+    font-size: 10px !important;
   }
 }
+
+/* Для очень маленьких телефонов до 480px */
+@media (max-width: 480px) {
+  .tracker-header h2 {
+    font-size: 16px;
+    margin-bottom: 6px;
+  }
+  
+  .current-date {
+    font-size: 12px;
+  }
+  
+  .mood-grid {
+    grid-template-columns: repeat(auto-fill, minmax(65px, 1fr));
+    gap: 6px;
+  }
+  
+  .mood-card {
+    padding: 8px 4px;
+  }
+  
+  .mood-emoji {
+    font-size: 20px;
+  }
+  
+  .mood-name {
+    font-size: 9px;
+  }
+  
+  .notes-section label {
+    font-size: 13px;
+  }
+  
+  .notes-section textarea {
+    padding: 8px;
+    font-size: 12px;
+    min-height: 70px;
+  }
+  
+  .save-button {
+    padding: 10px;
+    font-size: 13px;
+  }
+  
+  .history-section h3 {
+    font-size: 15px;
+  }
+  
+  .history-date {
+    font-size: 11px;
+  }
+  
+  .history-mood {
+    font-size: 12px;
+  }
+  
+  .history-notes {
+    font-size: 10px;
+  }
+  
+  .no-data {
+    font-size: 12px;
+    padding: 20px;
+  }
+  
+  .limit-info span {
+    font-size: 12px;
+  }
+  
+  .settings-btn {
+    padding: 4px 8px;
+    font-size: 10px;
+  }
+  
+  .limit-buttons button {
+    padding: 5px 10px;
+    font-size: 11px;
+  }
+  
+  .limit-options p {
+    font-size: 11px;
+  }
+  
+  .limit-hint {
+    font-size: 9px !important;
+  }
+}
+
+/* ========== КОНЕЦ ТЕЛЕФОННОЙ АДАПТАЦИИ ========== */
