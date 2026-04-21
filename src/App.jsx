@@ -14,7 +14,7 @@ function App() {
   const [activeTab, setActiveTab] = useState('mood')
   const [user, setUser] = useState(null)
   const [showAuthModal, setShowAuthModal] = useState(false)
-  const [showAdminPanel, setShowAdminPanel] = useState(false) // Для админ-панели
+  const [showAdminPanel, setShowAdminPanel] = useState(false)
   const [loading, setLoading] = useState(true)
   const [clickCount, setClickCount] = useState(0)
   const [clickTimer, setClickTimer] = useState(null)
@@ -39,7 +39,6 @@ function App() {
     await supabase.auth.signOut()
   }
 
-  // Секретный способ открыть админ-панель: 5 быстрых кликов по логотипу
   const handleLogoClick = () => {
     if (user?.email === 'kirill_borodulin_2005@mail.ru') {
       setClickCount(prev => prev + 1)
@@ -137,10 +136,10 @@ function App() {
         {activeTab === 'habits' && <HabitTracker userId={user.id} />}
         {activeTab === 'todos' && <TodoTracker userId={user.id} />}
       </main>
+      
       <WeatherWidget />
       <FeedbackButton user={user} />
 
-      {/* Админ-панель для просмотра отзывов */}
       {showAdminPanel && (
         <AdminFeedback user={user} onClose={() => setShowAdminPanel(false)} />
       )}

@@ -11,9 +11,7 @@ const WeatherWidget = () => {
   const [suggestions, setSuggestions] = useState([])
   const [showSuggestions, setShowSuggestions] = useState(false)
   const [lastCity, setLastCity] = useState('')
-  const [hasLoadedWeather, setHasLoadedWeather] = useState(false)
 
-  // Загружаем последний город при старте (НО НЕ ЗАГРУЖАЕМ ПОГОДУ)
   useEffect(() => {
     const savedCity = localStorage.getItem('lastWeatherCity')
     if (savedCity) {
@@ -26,7 +24,6 @@ const WeatherWidget = () => {
     }
   }, [])
 
-  // Поиск городов
   const searchCities = async (query) => {
     if (query.length < 2) {
       setSuggestions([])
@@ -56,7 +53,6 @@ const WeatherWidget = () => {
     }
   }
 
-  // Получение погоды по координатам
   const fetchWeather = async (lat, lon, cityName) => {
     setLoading(true)
     setError('')
@@ -78,15 +74,9 @@ const WeatherWidget = () => {
       }
       
       setWeather(weatherData)
-      setHasLoadedWeather(true)
-      
-      localStorage.setItem('lastWeatherCity', JSON.stringify({ 
-        city: cityName, 
-        lat, 
-        lon 
-      }))
-      
+      localStorage.setItem('lastWeatherCity', JSON.stringify({ city: cityName, lat, lon }))
       setLastCity(cityName)
+      setShowWidget(true)
       
     } catch (err) {
       setError('Не удалось загрузить погоду. Попробуйте позже.')

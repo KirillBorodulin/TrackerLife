@@ -286,6 +286,214 @@
 .add-todo-section {
   margin-bottom: 20px;
 }
+/* ========== AI И ОТЧЕТ ========== */
+
+.ai-todo-section {
+  background: linear-gradient(135deg, #f0f4ff 0%, #e8edff 100%);
+  padding: 15px;
+  border-radius: 16px;
+  margin-bottom: 15px;
+}
+
+.ai-input-group {
+  display: flex;
+  gap: 10px;
+}
+
+.ai-input-group input {
+  flex: 1;
+  padding: 12px;
+  border: 2px solid #667eea;
+  border-radius: 12px;
+  font-size: 14px;
+  background: white;
+}
+
+.ai-create-btn {
+  padding: 12px 20px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.3s;
+}
+
+.ai-create-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+}
+
+.ai-create-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.ai-hint {
+  font-size: 11px;
+  color: #667eea;
+  margin-top: 8px;
+  text-align: center;
+}
+
+.report-section {
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.report-btn {
+  padding: 10px 20px;
+  background: linear-gradient(135deg, #f59e0b 0%, #ef4444 100%);
+  color: white;
+  border: none;
+  border-radius: 50px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.3s;
+}
+
+.report-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(245, 158, 11, 0.4);
+}
+
+/* Модальное окно отчета */
+.report-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+}
+
+.report-modal {
+  background: white;
+  border-radius: 24px;
+  width: 90%;
+  max-width: 400px;
+  overflow: hidden;
+  animation: slideUp 0.3s ease;
+}
+
+.report-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 20px;
+  background: linear-gradient(135deg, #f59e0b 0%, #ef4444 100%);
+  color: white;
+}
+
+.report-modal-header h3 {
+  margin: 0;
+  font-size: 18px;
+}
+
+.close-report-btn {
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  color: white;
+  font-size: 20px;
+  cursor: pointer;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+}
+
+.report-modal-body {
+  padding: 20px;
+}
+
+.report-stat {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  background: #f8f9fa;
+  border-radius: 12px;
+  margin-bottom: 12px;
+}
+
+.report-icon {
+  font-size: 28px;
+}
+
+.report-stat strong {
+  display: block;
+  margin-bottom: 5px;
+  color: #333;
+}
+
+.report-progress {
+  height: 6px;
+  background: #e0e0e0;
+  border-radius: 3px;
+  margin-top: 8px;
+  overflow: hidden;
+}
+
+.report-progress-fill {
+  height: 100%;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 3px;
+}
+
+.report-advice {
+  background: #e8f5e9;
+  padding: 12px;
+  border-radius: 12px;
+  font-size: 13px;
+  color: #2e7d32;
+  margin-top: 12px;
+  text-align: center;
+}
+
+.todo-due {
+  background: #fff3e0;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 10px;
+  color: #f59e0b;
+}
+
+.todo-ai-badge {
+  background: #e8e8ff;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 10px;
+  color: #667eea;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Адаптация */
+@media (max-width: 480px) {
+  .ai-input-group {
+    flex-direction: column;
+  }
+  
+  .ai-create-btn {
+    padding: 10px;
+  }
+  
+  .report-modal {
+    width: 95%;
+  }
+}
   
   /* ========== ТЕЛЕФОННАЯ АДАПТАЦИЯ (ДОБАВЛЕНО) ========== */
 
@@ -577,3 +785,4 @@
 }
 
 /* ========== КОНЕЦ ТЕЛЕФОННОЙ АДАПТАЦИИ ========== */
+

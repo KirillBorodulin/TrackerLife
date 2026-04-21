@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react'
+import { parseTaskFromText } from '../utils/aiParser'
 import { sanitizeInput } from '../utils/security'
 import './TodoTracker.css'
 
@@ -7,19 +8,15 @@ const TodoTracker = () => {
   const [newTodo, setNewTodo] = useState('')
   const [newCategory, setNewCategory] = useState('личное')
   const [filter, setFilter] = useState('all')
+  const [aiInput, setAiInput] = useState('')
+  const [aiLoading, setAiLoading] = useState(false)
 
   const categories = ['личное', 'работа', 'учеба', 'здоровье', 'дом']
 
   useEffect(() => {
     const savedTodos = localStorage.getItem('todos')
     if (savedTodos) {
-      const parsedTodos = JSON.parse(savedTodos)
-      // Санитизируем существующие дела при загрузке
-      const sanitizedTodos = parsedTodos.map(todo => ({
-        ...todo,
-        text: sanitizeInput(todo.text)
-      }))
-      setTodos(sanitizedTodos)
+      setTodos(JSON.parse(savedTodos))
     }
   }, [])
 
@@ -27,14 +24,38 @@ const TodoTracker = () => {
     localStorage.setItem('todos', JSON.stringify(todos))
   }, [todos])
 
-  const addTodo = () => {
-    // Санитизируем ввод перед добавлением
-    const sanitizedText = sanitizeInput(newTodo)
-    
-    if (!sanitizedText) {
-      alert('Введите название дела (не более 200 символов, без HTML тегов)')
+  const createTaskWithAI = () => {
+    if (!aiInput.trim()) {
+      alert('Введите описание задачи')
       return
     }
+    
+    setAiLoading(true)
+    
+    setTimeout(() => {
+      const parsed = parseTaskFromText(aiInput)
+      
+      const todo = {
+        id: Date.now(),
+        text: sanitizeInput(parsed.text),
+        completed: false,
+        category: parsed.category,
+        createdAt: new Date().toLocaleDateString('ru-RU'),
+        dueDate: parsed.dueDate,
+        time: parsed.time,
+        createdByAI: true
+      }
+      
+      setTodos([todo, ...todos])
+      setAiInput('')
+      alert(`✨ Задача создана!\n📁 Категория: ${parsed.category}\n${parsed.dueDate ? `📅 Дата: ${parsed.dueDate}` : ''}`)
+      setAiLoading(false)
+    }, 500)
+  }
+
+  const addTodo = () => {
+    const sanitizedText = sanitizeInput(newTodo)
+    if (!sanitizedText) return
 
     const todo = {
       id: Date.now(),
@@ -57,15 +78,6 @@ const TodoTracker = () => {
   const deleteTodo = (id) => {
     if (window.confirm('Удалить дело?')) {
       setTodos(todos.filter(todo => todo.id !== id))
-    }
-  }
-
-  // Обработчик изменения поля ввода
-  const handleTodoChange = (e) => {
-    const rawValue = e.target.value
-    // Ограничиваем длину ввода
-    if (rawValue.length <= 200) {
-      setNewTodo(rawValue)
     }
   }
 
@@ -93,6 +105,23 @@ const TodoTracker = () => {
         <p>Планируйте, организуйте и достигайте большего!</p>
       </div>
 
+      {/* AI Создание задач */}
+      <div className="ai-todo-section">
+        <div className="ai-input-group">
+          <input
+            type="text"
+            placeholder="🤖 Опишите задачу словами... (например: Завтра в 15:00 позвонить клиенту)"
+            value={aiInput}
+            onChange={(e) => setAiInput(e.target.value)}
+            onKeyPress={(e) => e.key === 'Enter' && createTaskWithAI()}
+          />
+          <button onClick={createTaskWithAI} className="ai-create-btn" disabled={aiLoading}>
+            {aiLoading ? '⏳' : '🤖'} AI создать
+          </button>
+        </div>
+        <p className="ai-hint">✨ AI сам определит категорию и дату!</p>
+      </div>
+
       <div className="todo-stats">
         <div className="stat-card">
           <span className="stat-number">{stats.total}</span>
@@ -108,27 +137,13 @@ const TodoTracker = () => {
         </div>
       </div>
 
-      <div className="schedule-preview">
-        <h3>📅 Расписание на неделю</h3>
-        <div className="week-grid">
-          {weekDays.map((day, index) => (
-            <div key={index} className={`week-day ${index === adjustedToday ? 'today' : ''}`}>
-              <div className="day-name">{day}</div>
-              <div className="day-tasks">
-                <span className="task-placeholder">✏️</span>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-
       <div className="add-todo-section">
         <div className="todo-input-group">
           <input
             type="text"
-            placeholder="Добавить новое дело... (макс. 200 символов)"
+            placeholder="Добавить новое дело..."
             value={newTodo}
-            onChange={handleTodoChange}
+            onChange={(e) => setNewTodo(e.target.value)}
             onKeyPress={(e) => e.key === 'Enter' && addTodo()}
             maxLength="200"
           />
@@ -139,11 +154,6 @@ const TodoTracker = () => {
           </select>
           <button onClick={addTodo} className="add-todo-btn">➕</button>
         </div>
-        {newTodo.length > 0 && (
-          <div className="todo-input-hint">
-            {newTodo.length}/200 символов
-          </div>
-        )}
       </div>
 
       <div className="todo-filters">
@@ -177,6 +187,8 @@ const TodoTracker = () => {
               <div className="todo-meta">
                 <span className="todo-category">{todo.category}</span>
                 <span className="todo-date">{todo.createdAt}</span>
+                {todo.dueDate && <span className="todo-due">📅 {todo.dueDate}</span>}
+                {todo.createdByAI && <span className="todo-ai-badge">🤖 AI</span>}
               </div>
             </div>
             <button onClick={() => deleteTodo(todo.id)} className="delete-todo">🗑️</button>
@@ -186,23 +198,9 @@ const TodoTracker = () => {
         {filteredTodos.length === 0 && (
           <div className="empty-todos">
             <p>✨ Нет дел в этой категории</p>
-            <p className="hint">Добавьте новое дело выше!</p>
+            <p className="hint">Добавьте новое дело выше или используйте AI!</p>
           </div>
         )}
-      </div>
-
-      <div className="productivity-tips">
-        <h4>💡 Полезные привычки для продуктивности</h4>
-        <ul>
-          <li>📖 Быть открытым и любезным</li>
-          <li>⚖️ Быть честным и строгим</li>
-          <li>🧠 Быть мудрым и умным</li>
-          <li>⚡ Быть активным и энергичным</li>
-          <li>🎯 Быть компетентным и умным</li>
-          <li>💪 Быть способным к саморазвитию</li>
-          <li>🌟 Быть позитивным и оптимистичным</li>
-          <li>🎨 Быть творческим и инновативным</li>
-        </ul>
       </div>
     </div>
   )
